@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import { createClient } from '@supabase/supabase-js';
 
 // --- CONFIGURAZIONE DATABASE SUPABASE ---
-// In Vercel, aggiungi queste variabili nelle impostazioni "Environment Variables"
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
