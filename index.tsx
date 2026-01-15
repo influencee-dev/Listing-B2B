@@ -185,6 +185,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
   const [selectedSector, setSelectedSector] = useState<string>('All');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -282,13 +283,15 @@ const App = () => {
   const filteredCompanies = useMemo(() => {
     return allCompanies.filter(c => {
       const query = searchQuery.toLowerCase();
-      const matchesSearch = 
-        c.name.toLowerCase().includes(query) || 
-        c.location.toLowerCase().includes(query);
+      const loc = searchLocation.toLowerCase();
+      
+      const matchesSearch = c.name.toLowerCase().includes(query) || c.shortDescription.toLowerCase().includes(query);
+      const matchesLocation = c.location.toLowerCase().includes(loc);
       const matchesSector = selectedSector === 'All' || c.sector === selectedSector;
-      return matchesSearch && matchesSector;
+      
+      return matchesSearch && matchesLocation && matchesSector;
     });
-  }, [allCompanies, searchQuery, selectedSector]);
+  }, [allCompanies, searchQuery, searchLocation, selectedSector]);
 
   const navigateToProfile = (company: Company) => {
     setSelectedCompany(company);
@@ -359,7 +362,7 @@ const App = () => {
                <div className="max-w-4xl mx-auto relative z-10">
                   <div className="inline-block bg-sky-500/20 text-sky-400 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-8 border border-sky-500/30 shadow-2xl backdrop-blur-sm">Certified Database Access</div>
                   <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic mb-8 leading-[0.9]">Direct <span className="text-sky-400">B2B</span> Hub</h1>
-                  <p className="text-xl text-slate-400 mb-12 font-light max-w-2xl mx-auto">La directory professionale per il networking strategico. Fornitori e partner certificati.</p>
+                  <p className="text-xl text-slate-400 mb-12 font-light max-w-2xl mx-auto">La directory professionale per il networking strategico. Fornitori e partner certificati in un unico hub.</p>
                   <div className="flex flex-col md:flex-row gap-4 justify-center">
                      <button onClick={() => navigateToListing()} className="px-12 py-5 sigep-blue text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl">Trova Fornitori</button>
                      <button onClick={() => navigateToView('add-company')} className="px-12 py-5 bg-white text-slate-900 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl">Iscrivi Azienda</button>
@@ -367,52 +370,14 @@ const App = () => {
                </div>
             </section>
 
-            {/* SEZIONE AZIENDE PIU' CERCATE (SCROLL ORIZZONTALE) */}
-            <section className="py-20 bg-white">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex justify-between items-end mb-10">
-                  <div>
-                    <span className="text-sky-600 font-black text-[10px] uppercase tracking-widest italic mb-2 block">Trending</span>
-                    <h2 className="text-4xl font-black uppercase tracking-tighter italic">Aziende più cercate</h2>
-                  </div>
-                  <button onClick={() => navigateToListing()} className="text-xs font-black uppercase text-slate-400 hover:text-sky-600 transition-colors">Vedi tutte &rarr;</button>
-                </div>
-                
-                <div className="flex overflow-x-auto gap-8 pb-8 no-scrollbar -mx-6 px-6 snap-x">
-                  {allCompanies.slice(0, 6).map(c => (
-                    <div 
-                      key={c.id} 
-                      onClick={() => navigateToProfile(c)}
-                      className="min-w-[320px] bg-slate-50 rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 group cursor-pointer snap-start flex flex-col"
-                    >
-                      <div className="h-40 overflow-hidden relative">
-                        <img src={c.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
-                      </div>
-                      <div className="p-8 flex flex-col flex-1">
-                        <div className="w-16 h-16 bg-white rounded-2xl shadow-xl p-3 -mt-16 relative z-10 border border-slate-100 mb-4"><img src={c.logo} className="w-full h-full object-contain" /></div>
-                        <h3 className="text-xl font-black uppercase italic mb-2 leading-tight group-hover:text-sky-600 transition-colors">{c.name}</h3>
-                        <div className="text-[9px] font-black text-sky-500 uppercase tracking-widest mb-4 italic">{c.sector}</div>
-                        <p className="text-xs text-slate-500 line-clamp-2 italic mb-6 leading-relaxed flex-1">"{c.shortDescription}"</p>
-                        <div className="flex items-center gap-2 mt-auto">
-                           <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                           <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{c.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-            
-            {/* TUTTE LE CATEGORIE */}
+            {/* SEZIONE 1: TUTTE LE CATEGORIE (ORA PRIMA) */}
             <section className="py-24 max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
                    <div>
                       <span className="text-sky-600 font-black text-[10px] uppercase tracking-widest italic mb-2 block">Directory Sectors</span>
                       <h2 className="text-4xl font-black uppercase tracking-tighter italic">Tutte le Categorie</h2>
                    </div>
-                   <p className="text-slate-400 text-sm max-w-md italic">Esplora l'intero ecosistema B2B attraverso i nostri cluster specializzati.</p>
+                   <p className="text-slate-400 text-sm max-w-md italic">Esplora l'intero ecosistema B2B attraverso i nostri cluster specializzati per settore industriale.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {CATEGORIES.map(cat => (
@@ -429,53 +394,117 @@ const App = () => {
                     ))}
                 </div>
             </section>
+
+            {/* SEZIONE 2: AZIENDE PIU' CERCATE (ORA SECONDA) */}
+            <section className="py-20 bg-slate-100/50">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="flex justify-between items-end mb-10">
+                  <div>
+                    <span className="text-sky-600 font-black text-[10px] uppercase tracking-widest italic mb-2 block">Top Rated</span>
+                    <h2 className="text-4xl font-black uppercase tracking-tighter italic">Aziende in evidenza</h2>
+                  </div>
+                  <button onClick={() => navigateToListing()} className="text-xs font-black uppercase text-slate-400 hover:text-sky-600 transition-colors bg-white px-5 py-2.5 rounded-full border border-slate-200">Vedi tutte &rarr;</button>
+                </div>
+                
+                <div className="flex overflow-x-auto gap-8 pb-8 no-scrollbar -mx-6 px-6 snap-x">
+                  {allCompanies.slice(0, 8).map(c => (
+                    <div 
+                      key={c.id} 
+                      onClick={() => navigateToProfile(c)}
+                      className="min-w-[320px] bg-white rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 group cursor-pointer snap-start flex flex-col hover:shadow-2xl transition-all"
+                    >
+                      <div className="h-40 overflow-hidden relative">
+                        <img src={c.cover} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                      </div>
+                      <div className="p-8 flex flex-col flex-1">
+                        <div className="w-16 h-16 bg-white rounded-2xl shadow-xl p-3 -mt-16 relative z-10 border border-slate-100 mb-4 flex items-center justify-center">
+                          <img src={c.logo} className="w-full h-full object-contain" />
+                        </div>
+                        <h3 className="text-xl font-black uppercase italic mb-2 leading-tight group-hover:text-sky-600 transition-colors">{c.name}</h3>
+                        <div className="text-[9px] font-black text-sky-500 uppercase tracking-widest mb-4 italic">{c.sector}</div>
+                        <p className="text-xs text-slate-500 line-clamp-2 italic mb-6 leading-relaxed flex-1">"{c.shortDescription}"</p>
+                        <div className="flex items-center gap-2 mt-auto text-slate-400">
+                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                           <span className="text-[10px] font-black uppercase tracking-widest">{c.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
           </div>
         )}
 
         {view === 'listing' && (
            <div className="max-w-7xl mx-auto py-16 px-6 animate-slideUp">
-              <div className="flex flex-col mb-12">
-                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
-                    <div>
+              {/* HEADER LISTING + FILTRI MIGLIORATI */}
+              <div className="flex flex-col mb-16">
+                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-8">
+                    <div className="flex-1">
                        <h2 className="text-4xl font-black uppercase tracking-tighter italic">Directory Aziende</h2>
                        <p className="text-slate-500 text-sm mt-2 italic font-medium">{filteredCompanies.length} partner trovati nel network</p>
                     </div>
                     
-                    <div className="relative w-full md:w-96 group">
-                       <input 
-                         type="text" 
-                         placeholder="Cerca per Nome o Città..." 
-                         className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-3xl text-sm font-bold shadow-xl focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 outline-none transition-all" 
-                         value={searchQuery} 
-                         onChange={e => setSearchQuery(e.target.value)} 
-                       />
-                       <svg className="w-6 h-6 absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    {/* Console di Ricerca Sdoppiata */}
+                    <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                      <div className="relative group flex-1 sm:min-w-[300px]">
+                         <input 
+                           type="text" 
+                           placeholder="Cerca per Nome o Keyword..." 
+                           className="w-full pl-12 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold shadow-sm focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 outline-none transition-all placeholder:text-slate-300" 
+                           value={searchQuery} 
+                           onChange={e => setSearchQuery(e.target.value)} 
+                         />
+                         <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                      </div>
+                      <div className="relative group flex-1 sm:min-w-[200px]">
+                         <input 
+                           type="text" 
+                           placeholder="Località..." 
+                           className="w-full pl-12 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold shadow-sm focus:ring-4 focus:ring-sky-500/10 focus:border-sky-500 outline-none transition-all placeholder:text-slate-300" 
+                           value={searchLocation} 
+                           onChange={e => setSearchLocation(e.target.value)} 
+                         />
+                         <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                      </div>
                     </div>
                  </div>
 
+                 {/* Chips Settori con UX migliorata */}
                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Settori Core</span>
-                       {(selectedSector !== 'All' || searchQuery) && (
-                         <button onClick={() => { setSearchQuery(''); setSelectedSector('All'); }} className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:underline">Resetta</button>
+                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Settore Core</span>
+                       {(selectedSector !== 'All' || searchQuery || searchLocation) && (
+                         <button 
+                            onClick={() => { setSearchQuery(''); setSearchLocation(''); setSelectedSector('All'); }} 
+                            className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:bg-sky-50 px-3 py-1 rounded-full transition-colors"
+                          >
+                            Resetta Filtri
+                          </button>
                        )}
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
-                       <button 
-                         onClick={() => setSelectedSector('All')}
-                         className={`whitespace-nowrap px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${selectedSector === 'All' ? 'sigep-blue text-white border-transparent shadow-lg shadow-blue-200' : 'bg-white text-slate-400 border-slate-100'}`}
-                       >
-                         Tutti i Settori
-                       </button>
-                       {CATEGORIES.map(cat => (
-                         <button 
-                           key={cat} 
-                           onClick={() => setSelectedSector(cat)}
-                           className={`whitespace-nowrap px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${selectedSector === cat ? 'sigep-blue text-white border-transparent shadow-lg shadow-blue-200' : 'bg-white text-slate-400 border-slate-100'}`}
-                         >
-                           {cat}
-                         </button>
-                       ))}
+                    <div className="relative group">
+                      <div className="flex gap-3 overflow-x-auto pb-6 no-scrollbar -mx-6 px-6">
+                        <button 
+                          onClick={() => setSelectedSector('All')}
+                          className={`whitespace-nowrap px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${selectedSector === 'All' ? 'sigep-blue text-white border-transparent shadow-xl shadow-blue-200 scale-105' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600'}`}
+                        >
+                          Tutti i Settori
+                        </button>
+                        {CATEGORIES.map(cat => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setSelectedSector(cat)}
+                            className={`whitespace-nowrap px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${selectedSector === cat ? 'sigep-blue text-white border-transparent shadow-xl shadow-blue-200 scale-105' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600'}`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                      {/* Gradiente di indicazione scroll su mobile */}
+                      <div className="absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-slate-50 to-transparent pointer-events-none sm:hidden"></div>
                     </div>
                  </div>
               </div>
@@ -487,27 +516,36 @@ const App = () => {
                          <div className="h-44 overflow-hidden relative">
                             <img src={c.cover} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent"></div>
+                            <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                               <span className="text-[9px] font-black text-white uppercase">{c.type}</span>
+                            </div>
                          </div>
                          <div className="p-8 relative flex-1 flex flex-col">
-                            <div className="w-20 h-20 bg-white rounded-2xl shadow-2xl p-3 -mt-16 relative z-10 border border-slate-50 mb-6 group-hover:rotate-3 transition-transform"><img src={c.logo} className="w-full h-full object-contain" /></div>
+                            <div className="w-20 h-20 bg-white rounded-2xl shadow-2xl p-3 -mt-16 relative z-10 border border-slate-50 mb-6 group-hover:rotate-3 transition-transform flex items-center justify-center">
+                              <img src={c.logo} className="w-full h-full object-contain" />
+                            </div>
                             <h3 className="text-2xl font-black uppercase italic mb-3 leading-tight tracking-tighter group-hover:text-sky-600 transition-colors">{c.name}</h3>
                             <div className="text-[10px] font-black text-sky-500 uppercase tracking-widest mb-4 italic">{c.sector}</div>
                             <p className="text-xs text-slate-500 line-clamp-2 italic mb-8 flex-1 leading-relaxed">"{c.shortDescription}"</p>
-                            <div className="pt-6 border-t border-slate-50 flex justify-between items-center mt-auto">
+                            <div className="pt-6 border-t border-slate-100 flex justify-between items-center mt-auto">
                                <div className="flex items-center gap-2">
                                   <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
                                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{c.location}</span>
                                </div>
-                               <span className="text-sky-600 font-black text-[10px] uppercase tracking-widest bg-sky-50 px-4 py-2 rounded-xl">Dossier &rarr;</span>
+                               <span className="text-sky-600 font-black text-[10px] uppercase tracking-widest bg-sky-50 px-4 py-2 rounded-xl group-hover:bg-sky-600 group-hover:text-white transition-all">Dossier &rarr;</span>
                             </div>
                          </div>
                       </div>
                    ))}
                 </div>
               ) : (
-                <div className="py-20 text-center bg-white rounded-[3rem] shadow-inner border border-slate-100 border-dashed">
-                  <h3 className="text-xl font-black uppercase italic text-slate-900 mb-2">Nessun risultato</h3>
-                  <button onClick={() => { setSearchQuery(''); setSelectedSector('All'); }} className="mt-4 px-10 py-4 sigep-blue text-white rounded-2xl font-black uppercase text-[10px] tracking-widest">Resetta filtri</button>
+                <div className="py-24 text-center bg-white rounded-[3rem] shadow-inner border border-slate-100 border-dashed animate-pulse">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  </div>
+                  <h3 className="text-xl font-black uppercase italic text-slate-900 mb-2">Nessun partner trovato</h3>
+                  <p className="text-slate-400 text-sm mb-8">Prova a modificare i termini della ricerca o il settore selezionato.</p>
+                  <button onClick={() => { setSearchQuery(''); setSearchLocation(''); setSelectedSector('All'); }} className="px-10 py-4 sigep-blue text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">Mostra Tutti</button>
                 </div>
               )}
            </div>
@@ -515,83 +553,99 @@ const App = () => {
 
         {view === 'profile' && selectedCompany && (
            <div className="animate-slideUp">
-              <div className="h-[450px] relative bg-slate-900 overflow-hidden">
+              {/* Header Profilo Premium */}
+              <div className="h-[500px] relative bg-slate-900 overflow-hidden">
                  <img src={selectedCompany.cover} className="w-full h-full object-cover opacity-50 scale-105" />
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
                  <div className="absolute bottom-0 left-0 right-0 p-12 max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row items-end gap-10">
-                       <div className="w-48 h-48 bg-white rounded-[2.5rem] p-8 shadow-3xl flex items-center justify-center"><img src={selectedCompany.logo} className="w-full h-full object-contain" /></div>
-                       <div className="flex-1 pb-4">
+                       <div className="w-56 h-56 bg-white rounded-[3rem] p-8 shadow-3xl flex items-center justify-center border border-slate-100">
+                         <img src={selectedCompany.logo} className="w-full h-full object-contain" />
+                       </div>
+                       <div className="flex-1 pb-6">
                           <div className="flex gap-3 mb-6">
                              <span className="bg-sky-500 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">{selectedCompany.type}</span>
                              <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest">{selectedCompany.size}</span>
                           </div>
-                          <h1 className="text-6xl md:text-7xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">{selectedCompany.name}</h1>
+                          <h1 className="text-6xl md:text-8xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">{selectedCompany.name}</h1>
                           <div className="flex items-center gap-3 text-slate-300">
-                             <svg className="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                             <span className="text-lg font-medium italic">{selectedCompany.location}</span>
+                             <svg className="w-6 h-6 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                             <span className="text-xl font-medium italic">{selectedCompany.location}</span>
                           </div>
                        </div>
                     </div>
                  </div>
               </div>
 
-              <div className="max-w-7xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-12 gap-16">
-                 <div className="lg:col-span-8 space-y-16">
+              {/* Contenuto Profilo */}
+              <div className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 lg:grid-cols-12 gap-20">
+                 <div className="lg:col-span-8 space-y-20">
                     <section>
-                       <h2 className="text-2xl font-black uppercase italic mb-8 flex items-center gap-4"><div className="w-2 h-10 sigep-blue rounded-full"></div>Dossier Aziendale</h2>
+                       <h2 className="text-3xl font-black uppercase italic mb-10 flex items-center gap-4">
+                         <div className="w-2.5 h-12 sigep-blue rounded-full"></div>
+                         Dossier Aziendale
+                       </h2>
                        <p className="text-2xl font-light text-slate-600 italic leading-relaxed">{selectedCompany.fullDescription}</p>
                     </section>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                        <section>
-                          <h3 className="text-lg font-black uppercase italic mb-6 text-slate-900 tracking-tight">Prodotti Principali</h3>
-                          <div className="flex flex-wrap gap-2">
+                          <h3 className="text-xl font-black uppercase italic mb-8 text-slate-900 tracking-tight">Prodotti Principali</h3>
+                          <div className="flex flex-wrap gap-3">
                              {selectedCompany.products.map(p => (
-                                <span key={p} className="px-4 py-2 bg-slate-100 text-slate-700 text-[10px] font-bold uppercase rounded-xl border border-slate-200">{p}</span>
+                                <span key={p} className="px-5 py-3 bg-slate-100 text-slate-700 text-xs font-bold uppercase rounded-2xl border border-slate-200">{p}</span>
                              ))}
                           </div>
                        </section>
                        <section>
-                          <h3 className="text-lg font-black uppercase italic mb-6 text-slate-900 tracking-tight">Servizi Core</h3>
-                          <div className="flex flex-wrap gap-2">
+                          <h3 className="text-xl font-black uppercase italic mb-8 text-slate-900 tracking-tight">Servizi Core</h3>
+                          <div className="flex flex-wrap gap-3">
                              {selectedCompany.services.map(s => (
-                                <span key={s} className="px-4 py-2 bg-sky-50 text-sky-700 text-[10px] font-bold uppercase rounded-xl border border-sky-100">{s}</span>
+                                <span key={s} className="px-5 py-3 bg-sky-50 text-sky-700 text-xs font-bold uppercase rounded-2xl border border-sky-100">{s}</span>
                              ))}
                           </div>
                        </section>
                     </div>
 
-                    <section className="bg-slate-50 p-10 rounded-[2rem] border border-slate-100">
-                       <h3 className="text-lg font-black uppercase italic mb-6 text-slate-900 tracking-tight">Mercati Serviti</h3>
-                       <div className="flex flex-wrap gap-4">
+                    <section className="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-xl">
+                       <h3 className="text-xl font-black uppercase italic mb-8 text-slate-900 tracking-tight">Geographic Reach</h3>
+                       <div className="flex flex-wrap gap-5">
                           {selectedCompany.marketsServed.map(m => (
-                             <div key={m} className="flex items-center gap-3 px-5 py-3 bg-white rounded-2xl shadow-sm border border-slate-100">
-                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span className="text-xs font-black uppercase tracking-widest text-slate-600">{m}</span>
+                             <div key={m} className="flex items-center gap-4 px-6 py-4 bg-slate-50 rounded-2xl shadow-sm border border-slate-200">
+                                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-600">{m}</span>
                              </div>
                           ))}
                        </div>
                     </section>
                  </div>
 
+                 {/* Sidebar Contatti Professionale */}
                  <div className="lg:col-span-4">
-                    <div className="bg-slate-900 p-10 rounded-[3rem] shadow-3xl text-white sticky top-28 border border-white/5 overflow-hidden">
-                       <h3 className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-10 border-b border-white/5 pb-6 italic">Connect Gateway</h3>
-                       <div className="space-y-8 mb-12">
+                    <div className="bg-slate-900 p-12 rounded-[3.5rem] shadow-3xl text-white sticky top-28 border border-white/5 overflow-hidden">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                       <h3 className="text-[11px] font-black text-sky-400 uppercase tracking-widest mb-12 border-b border-white/5 pb-8 italic">Connect Dashboard</h3>
+                       
+                       <div className="space-y-10 mb-16">
                           <a href={selectedCompany.website} target="_blank" className="flex items-center justify-between group">
-                             <span className="text-[10px] font-black text-slate-500 uppercase italic">Sito Web</span>
-                             <span className="font-bold text-sm group-hover:text-sky-400 transition-colors">Visita &nearr;</span>
+                             <span className="text-[11px] font-black text-slate-500 uppercase italic">Sito Web Ufficiale</span>
+                             <span className="font-bold text-sm group-hover:text-sky-400 transition-colors">Visita Online &nearr;</span>
                           </a>
-                          <div className="flex flex-col gap-1">
-                             <span className="text-[10px] font-black text-slate-500 uppercase italic">Telefono</span>
-                             <span className="font-bold text-lg">{selectedCompany.phone}</span>
+                          <div className="flex flex-col gap-2">
+                             <span className="text-[11px] font-black text-slate-500 uppercase italic">Linea Diretta</span>
+                             <span className="font-bold text-2xl tracking-tight">{selectedCompany.phone}</span>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                             <span className="text-[11px] font-black text-slate-500 uppercase italic">Email Gateway</span>
+                             <span className="font-bold text-sm truncate">{selectedCompany.email}</span>
                           </div>
                        </div>
-                       <div className="flex flex-col gap-4">
-                          <a href={`mailto:${selectedCompany.email}`} className="w-full py-5 sigep-blue rounded-2xl flex items-center justify-center font-black uppercase text-[10px] tracking-widest shadow-xl">Richiedi Contatto</a>
+
+                       <div className="flex flex-col gap-5">
+                          <a href={`mailto:${selectedCompany.email}`} className="w-full py-6 sigep-blue rounded-2xl flex items-center justify-center font-black uppercase text-xs tracking-[0.2em] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">Richiedi Preventivo</a>
+                          
                           {selectedCompany.whatsapp && (
-                             <a href={`https://wa.me/${selectedCompany.whatsapp.replace(/\s+/g, '')}`} target="_blank" className="w-full py-5 bg-green-600/20 text-green-400 border border-green-600/30 rounded-2xl flex items-center justify-center font-black uppercase text-[10px] tracking-widest hover:bg-green-600 hover:text-white transition-all">WhatsApp Direct</a>
+                             <a href={`https://wa.me/${selectedCompany.whatsapp.replace(/\s+/g, '')}`} target="_blank" className="w-full py-6 bg-green-600/20 text-green-400 border border-green-600/30 rounded-2xl flex items-center justify-center font-black uppercase text-xs tracking-[0.2em] hover:bg-green-600 hover:text-white transition-all">WhatsApp Direct Chat</a>
                           )}
                        </div>
                     </div>
@@ -605,13 +659,17 @@ const App = () => {
         )}
       </main>
 
-      <footer className="bg-slate-950 py-16 px-6 text-center border-t border-white/5">
-         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+      <footer className="bg-slate-950 py-20 px-6 text-center border-t border-white/5">
+         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 sigep-blue rounded-lg flex items-center justify-center shadow-lg"><span className="text-white font-black italic">B2</span></div>
-              <span className="text-xl font-black text-white italic uppercase tracking-tighter">Connect Hub</span>
+              <div className="w-10 h-10 sigep-blue rounded-xl flex items-center justify-center shadow-lg"><span className="text-white font-black italic">B2</span></div>
+              <span className="text-2xl font-black text-white italic uppercase tracking-tighter">Connect Hub</span>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-700 italic">Enterprise Network Layer v2.2 • 2024</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 italic">Enterprise Network v2.5 • Cloud Native • 2024</p>
+            <div className="flex gap-12 text-[10px] font-black uppercase text-slate-600 tracking-widest">
+               <a href="#" className="hover:text-white transition-colors">Data Privacy</a>
+               <a href="#" className="hover:text-white transition-colors">Network Terms</a>
+            </div>
          </div>
       </footer>
     </div>
@@ -649,21 +707,21 @@ const AddCompanyForm = ({ onFinish, onCancel }: { onFinish: (c: Company) => void
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-20 px-6">
-      <form onSubmit={handleSubmit} className="bg-white rounded-[3.5rem] shadow-3xl overflow-hidden border border-slate-100 animate-slideUp">
-         <div className="bg-slate-900 p-12 md:p-16 text-white italic relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter relative z-10">Onboarding Hub</h2>
-            <p className="text-sky-400 text-[10px] font-black uppercase tracking-widest mt-4 relative z-10">Nuova Azienda Certificata</p>
+    <div className="max-w-5xl mx-auto py-24 px-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-[4rem] shadow-3xl overflow-hidden border border-slate-100 animate-slideUp">
+         <div className="bg-slate-900 p-16 md:p-20 text-white italic relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-sky-500/10 rounded-full -mr-32 -mt-32 blur-[100px]"></div>
+            <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter relative z-10 leading-none">Onboarding Hub</h2>
+            <p className="text-sky-400 text-[11px] font-black uppercase tracking-[0.3em] mt-6 relative z-10">Inserimento Dossier Aziendale</p>
          </div>
          
-         <div className="p-12 md:p-20 space-y-12">
+         <div className="p-12 md:p-20 space-y-20">
             <div>
-               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-4 mb-10 italic">1. Corporate Identity</h3>
+               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-6 mb-12 italic text-slate-900">1. Corporate Identity</h3>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                      <label className={labelClass}>Ragione Sociale</label>
-                     <input required type="text" onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Nome Azienda SpA" className={inputClass} />
+                     <input required type="text" onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Es: Food Solutions Italia SpA" className={inputClass} />
                   </div>
                   <div>
                      <label className={labelClass}>Settore Strategico</label>
@@ -671,43 +729,61 @@ const AddCompanyForm = ({ onFinish, onCancel }: { onFinish: (c: Company) => void
                         {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                      </select>
                   </div>
+                  <div>
+                     <label className={labelClass}>Tipologia</label>
+                     <select onChange={e => setFormData({...formData, type: e.target.value})} className={inputClass}>
+                        <option value="Produttore">Produttore</option>
+                        <option value="Distributore">Distributore</option>
+                        <option value="Service Provider">Service Provider</option>
+                        <option value="Import/Export">Import/Export</option>
+                     </select>
+                  </div>
+                  <div>
+                     <label className={labelClass}>Dimensione Team</label>
+                     <select onChange={e => setFormData({...formData, size: e.target.value})} className={inputClass}>
+                        <option value="1-10 dipendenti">1-10 dipendenti</option>
+                        <option value="11-50 dipendenti">11-50 dipendenti</option>
+                        <option value="51-200 dipendenti">51-200 dipendenti</option>
+                        <option value="200+ dipendenti">200+ dipendenti</option>
+                     </select>
+                  </div>
                </div>
             </div>
 
             <div>
-               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-4 mb-10 italic">2. Portfolio & Strategy</h3>
+               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-6 mb-12 italic text-slate-900">2. Portfolio & Description</h3>
                <div className="grid grid-cols-1 gap-4">
                   <div>
-                     <label className={labelClass}>Descrizione Breve (max 150 car.)</label>
-                     <input maxLength={150} type="text" onChange={e => setFormData({...formData, shortDescription: e.target.value})} placeholder="Es: Leader nel settore X..." className={inputClass} />
+                     <label className={labelClass}>Elevator Pitch (max 150 car.)</label>
+                     <input maxLength={150} type="text" onChange={e => setFormData({...formData, shortDescription: e.target.value})} placeholder="Breve payoff aziendale..." className={inputClass} />
                   </div>
                   <div>
-                     <label className={labelClass}>Dossier Esteso</label>
-                     <textarea required onChange={e => setFormData({...formData, fullDescription: e.target.value})} placeholder="Storia, vision e mission..." className={`${inputClass} h-40 resize-none`} />
+                     <label className={labelClass}>Company History & Mission</label>
+                     <textarea required onChange={e => setFormData({...formData, fullDescription: e.target.value})} placeholder="Descrizione dettagliata delle competenze..." className={`${inputClass} h-48 resize-none`} />
                   </div>
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                   <div>
-                     <label className={labelClass}>Prodotti (separati da virgola)</label>
-                     <input type="text" value={productsStr} onChange={e => setProductsStr(e.target.value)} placeholder="Prod. 1, Prod. 2..." className={inputClass} />
+                     <label className={labelClass}>Prodotti (CSV)</label>
+                     <input type="text" value={productsStr} onChange={e => setProductsStr(e.target.value)} placeholder="Prodotto A, Prodotto B..." className={inputClass} />
                   </div>
                   <div>
-                     <label className={labelClass}>Servizi (separati da virgola)</label>
-                     <input type="text" value={servicesStr} onChange={e => setServicesStr(e.target.value)} placeholder="Serv. 1, Serv. 2..." className={inputClass} />
+                     <label className={labelClass}>Servizi (CSV)</label>
+                     <input type="text" value={servicesStr} onChange={e => setServicesStr(e.target.value)} placeholder="Servizio X, Servizio Y..." className={inputClass} />
                   </div>
                   <div>
-                     <label className={labelClass}>Mercati (separati da virgola)</label>
-                     <input type="text" value={marketsStr} onChange={e => setMarketsStr(e.target.value)} placeholder="Italia, USA..." className={inputClass} />
+                     <label className={labelClass}>Mercati (CSV)</label>
+                     <input type="text" value={marketsStr} onChange={e => setMarketsStr(e.target.value)} placeholder="Italia, Germania..." className={inputClass} />
                   </div>
                </div>
             </div>
 
             <div>
-               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-4 mb-10 italic">3. Contact Gateway</h3>
+               <h3 className="text-sm font-black uppercase tracking-widest border-b border-slate-100 pb-6 mb-12 italic text-slate-900">3. Contact Gateway</h3>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                     <label className={labelClass}>Località</label>
-                     <input type="text" onChange={e => setFormData({...formData, location: e.target.value})} placeholder="Città, Provincia" className={inputClass} />
+                     <label className={labelClass}>Headquarters (Città)</label>
+                     <input type="text" onChange={e => setFormData({...formData, location: e.target.value})} placeholder="Es: Milano, IT" className={inputClass} />
                   </div>
                   <div>
                      <label className={labelClass}>Email Commerciale</label>
@@ -715,18 +791,18 @@ const AddCompanyForm = ({ onFinish, onCancel }: { onFinish: (c: Company) => void
                   </div>
                   <div>
                      <label className={labelClass}>Telefono</label>
-                     <input type="tel" onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+39..." className={inputClass} />
+                     <input type="tel" onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+39 02..." className={inputClass} />
                   </div>
                   <div>
-                     <label className={labelClass}>WhatsApp</label>
-                     <input type="tel" onChange={e => setFormData({...formData, whatsapp: e.target.value})} placeholder="+39..." className={inputClass} />
+                     <label className={labelClass}>WhatsApp Business</label>
+                     <input type="tel" onChange={e => setFormData({...formData, whatsapp: e.target.value})} placeholder="+39 333..." className={inputClass} />
                   </div>
                </div>
             </div>
             
-            <div className="flex flex-col md:flex-row gap-4 pt-10">
-               <button type="button" onClick={onCancel} className="px-10 py-6 bg-slate-100 text-slate-500 rounded-3xl font-black uppercase text-xs tracking-widest">Annulla</button>
-               <button type="submit" className="flex-1 py-6 bg-green-600 text-white rounded-3xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-green-700 transition-all">Pubblica Dossier</button>
+            <div className="flex flex-col md:flex-row gap-6 pt-12">
+               <button type="button" onClick={onCancel} className="px-12 py-6 bg-slate-100 text-slate-500 rounded-[2rem] font-black uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">Annulla</button>
+               <button type="submit" className="flex-1 py-6 bg-green-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-2xl hover:bg-green-700 hover:scale-[1.02] active:scale-[0.98] transition-all">Pubblica Dossier Certificato</button>
             </div>
          </div>
       </form>
