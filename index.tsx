@@ -47,7 +47,6 @@ const CATEGORIES = [
   "TECNOLOGIE E ATTREZZATURE"
 ];
 
-// Fallback data in caso di database non configurato o vuoto
 const MOCK_DATA: Company[] = [
   {
     "id": "1",
@@ -74,7 +73,6 @@ const App = () => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({ sector: 'All', type: 'All' });
-  const [showSectorsMenu, setShowSectorsMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -161,7 +159,7 @@ const App = () => {
 
       if (error) throw error;
       await fetchCompanies();
-      navigateToView('listing');
+      setView('listing');
     } catch (err) {
       console.error("Save Error:", err);
       alert("Errore nel salvataggio. Verifica la configurazione di Supabase.");
@@ -211,7 +209,6 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* Navbar Professionale */}
       <nav className="bg-white/90 backdrop-blur-xl border-b border-slate-200 h-16 flex items-center px-6 sticky top-0 z-[100] glass-header">
         <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
           <button onClick={() => navigateToView('home')} className="flex items-center gap-3">
